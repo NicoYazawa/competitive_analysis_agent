@@ -1,0 +1,28 @@
+database:
+  host: "postgres"
+  port: 5432
+  user: "postgres"
+  password: "${DB_PASSWORD}"
+  name: "competitive_analysis"
+  sslmode: "require"
+
+redis:
+  host: "redis"
+  port: 6379
+  password: "${REDIS_PASSWORD}"
+  db: 0
+
+app:
+  host: "0.0.0.0"
+  port: 8080
+  mode: "production"
+
+llm:
+  provider: "qwen"
+  api_key: "${LLM_API_KEY}"
+  base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+
+asynq:
+  redis_host: "redis:6379"
+  redis_password: "${REDIS_PASSWORD}"
+  redis_db: 1
