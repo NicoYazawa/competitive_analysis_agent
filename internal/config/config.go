@@ -7,11 +7,12 @@ import (
 )
 
 type Config struct {
-	Database DatabaseConfig `yaml:"database"`
-	Redis    RedisConfig    `yaml:"redis"`
-	App      AppConfig      `yaml:"app"`
-	LLM      LLMConfig      `yaml:"llm"`
-	Asynq    AsynqConfig    `yaml:"asynq"`
+	Database     DatabaseConfig `yaml:"database"`
+	Redis        RedisConfig    `yaml:"redis"`
+	App          AppConfig      `yaml:"app"`
+	LLM          LLMConfig      `yaml:"llm"`
+	Asynq        AsynqConfig    `yaml:"asynq"`
+	ShopifyStores []string      `yaml:"shopify_stores"`
 }
 
 type DatabaseConfig struct {
@@ -37,10 +38,21 @@ type AppConfig struct {
 }
 
 type LLMConfig struct {
-	Provider string `yaml:"provider"`
-	APIKey   string `yaml:"api_key"`
-	BaseURL  string `yaml:"base_url"`
+	Provider string            `yaml:"provider"`
+	APIKey   string            `yaml:"api_key"`
+	BaseURL  string            `yaml:"base_url"`
+	Models   map[string]string `yaml:"models"` // model name per provider
 }
+
+// LLMProviderType represents the type of LLM provider.
+type LLMProviderType string
+
+const (
+	LLMProviderQwen     LLMProviderType = "qwen"
+	LLMProviderDeepSeek LLMProviderType = "deepseek"
+	LLMProviderMiniMax  LLMProviderType = "minimax"
+	LLMProviderMimiMax  LLMProviderType = "mimimax"
+)
 
 type AsynqConfig struct {
 	RedisHost     string `yaml:"redis_host"`

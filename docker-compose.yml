@@ -2,25 +2,25 @@ version: '3.8'
 
 services:
   postgres:
-    image: postgres:17
+    image: timescale/timescaledb:latest-pg18
     container_name: competitive_analysis_pg
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: competitive_analysis
     ports:
-      - "5432:5432"
+      - "54320:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql
       - ./migrations/postgres:/docker-entrypoint-initdb.d
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -p 5432"]
       interval: 10s
       timeout: 5s
       retries: 5
 
   redis:
-    image: redis:8.10.1
+    image: redis:8-alpine
     container_name: competitive_analysis_redis
     ports:
       - "6379:6379"

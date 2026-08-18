@@ -1,33 +1,39 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { setActivePinia, createPinia } from 'pinia'
 import Competitor from './Competitor.vue'
 
-// Mock store
-vi.mock('@/stores/market', () => ({
-  useMarketStore: vi.fn(() => ({
-    fetchCompetitors: vi.fn(),
-    competitors: [],
-    loading: false,
-    error: null
-  }))
-}))
-
-vi.mock('@/components/AlertBadge.vue', () => ({
-  default: { template: '<div class="alert-badge-mock"></div>', props: ['count', 'type'] }
-}))
-
 describe('Competitor', () => {
-  it('renders page title', () => {
-    const wrapper = mount(Competitor, {
-      global: { stubs: { AlertBadge: true } }
-    })
-    expect(wrapper.find('h1').text()).toBe('Competitor Intelligence')
+  beforeEach(() => {
+    setActivePinia(createPinia())
   })
 
-  it('renders competitor list container', () => {
-    const wrapper = mount(Competitor, {
-      global: { stubs: { AlertBadge: true } }
-    })
-    expect(wrapper.find('.competitor-list').exists()).toBe(true)
+  it('renders page title', () => {
+    const wrapper = mount(Competitor)
+    expect(wrapper.find('h1').text()).toBe('竞品情报')
+  })
+
+  it('renders filter bar', () => {
+    const wrapper = mount(Competitor)
+    expect(wrapper.find('.filter-bar').exists()).toBe(true)
+    expect(wrapper.find('.filter-search').exists()).toBe(true)
+    expect(wrapper.findAll('.filter-select').length).toBeGreaterThan(0)
+  })
+
+  it('renders competitor table', () => {
+    const wrapper = mount(Competitor)
+    expect(wrapper.find('.data-table').exists()).toBe(true)
+    expect(wrapper.text()).toContain('Anker 737 Power Bank')
+  })
+
+  it('renders pagination', () => {
+    const wrapper = mount(Competitor)
+    expect(wrapper.find('.pagination').exists()).toBe(true)
+  })
+
+  it('renders filter chips', () => {
+    const wrapper = mount(Competitor)
+    const chips = wrapper.findAll('.filter-chip')
+    expect(chips.length).toBe(3)
   })
 })

@@ -1,38 +1,50 @@
 <template>
-  <div :class="['alert-badge', type]">
-    {{ count }}
-  </div>
+  <span :class="['alert-badge', type]">
+    <span v-if="dot" class="alert-dot"></span>
+    <slot />
+  </span>
 </template>
 
 <script setup lang="ts">
 defineProps<{
-  count: number
-  type: 'warning' | 'danger' | 'info' | 'success'
+  type?: 'critical' | 'warning' | 'good' | 'info'
+  dot?: boolean
 }>()
 </script>
 
 <style scoped>
 .alert-badge {
-  display: inline-block;
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: bold;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: ui-monospace, 'JetBrains Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
-.warning {
-  background: #fff3cd;
-  color: #856404;
+.alert-badge.critical {
+  background: color-mix(in oklch, #d03b3b 14%, transparent);
+  color: #d03b3b;
 }
-.danger {
-  background: #f8d7da;
-  color: #721c24;
+.alert-badge.warning {
+  background: color-mix(in oklch, #fab219 14%, transparent);
+  color: #92400e;
 }
-.info {
-  background: #d1ecf1;
-  color: #0c5460;
+.alert-badge.good {
+  background: color-mix(in oklch, #0ca30c 14%, transparent);
+  color: #0ca30c;
 }
-.success {
-  background: #d4edda;
-  color: #155724;
+.alert-badge.info {
+  background: color-mix(in oklch, #2f6feb 12%, transparent);
+  color: #2f6feb;
+}
+.alert-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
 }
 </style>

@@ -20,6 +20,9 @@ coverage.out
 *.swp
 *.swo
 
+# Local files
+PLAN.md
+
 # Environment
 .env
 .env.local
@@ -46,3 +49,6 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp
+
+
+prototype/

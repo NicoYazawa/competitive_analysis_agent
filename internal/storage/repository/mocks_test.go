@@ -13,25 +13,65 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// MockResult implements sql.Result for testing
+type MockResult struct {
+	LastInsertIdVal int64
+	RowsAffectedVal int64
+	LastInsertErr   error
+	RowsAffectedErr error
+}
+
+func (m *MockResult) LastInsertId() (int64, error) {
+	return m.LastInsertIdVal, m.LastInsertErr
+}
+
+func (m *MockResult) RowsAffected() (int64, error) {
+	return m.RowsAffectedVal, m.RowsAffectedErr
+}
+
+// MockRow 用于测试的 Mock sql.Row
+type MockRow struct {
+	ScanFunc func(dest ...interface{}) error
+}
+
+func (m *MockRow) Scan(dest ...interface{}) error {
+	if m.ScanFunc != nil {
+		return m.ScanFunc(dest...)
+	}
+	return sql.ErrNoRows
+}
+
 // MockDB 用于测试的 Mock PostgresDB
 type MockDB struct {
-	execResult  sql.Result
-	execErr     error
-	queryRows   *sql.Rows
-	queryErr    error
-	queryRowVal interface{}
-	queryRowErr error
+	ExecFunc     func(ctx context.Context, query string, args ...interface{}) (sql.Result, error)
+	QueryFunc    func(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error)
+	QueryRowFunc func(ctx context.Context, query string, args ...interface{}) *sql.Row
+
+	// Legacy fields for backwards compatibility
+	ExecResult sql.Result
+	ExecErr    error
+	Rows       *sql.Rows
+	QueryErr   error
 }
 
 func (m *MockDB) Exec(ctx context.Context, query string, args ...interface{}) (sql.Result, error) {
-	return m.execResult, m.execErr
+	if m.ExecFunc != nil {
+		return m.ExecFunc(ctx, query, args...)
+	}
+	return m.ExecResult, m.ExecErr
 }
 
 func (m *MockDB) Query(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error) {
-	return m.queryRows, m.queryErr
+	if m.QueryFunc != nil {
+		return m.QueryFunc(ctx, query, args...)
+	}
+	return m.Rows, m.QueryErr
 }
 
 func (m *MockDB) QueryRow(ctx context.Context, query string, args ...interface{}) *sql.Row {
+	if m.QueryRowFunc != nil {
+		return m.QueryRowFunc(ctx, query, args...)
+	}
 	return &sql.Row{}
 }
 

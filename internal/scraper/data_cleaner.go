@@ -140,18 +140,21 @@ func (d *DataCleaner) CleanPlatform(platform string) string {
 	platform = strings.ToLower(strings.TrimSpace(platform))
 
 	platforms := map[string]string{
-		"amazon":        "amazon",
-		"amazon.com":    "amazon",
-		"www.amazon.com": "amazon",
-		"aliexpress":    "aliexpress",
-		"aliexpress.com": "aliexpress",
+		"amazon":           "amazon",
+		"amazon.com":       "amazon",
+		"www.amazon.com":   "amazon",
+		"aliexpress":       "aliexpress",
+		"aliexpress.com":   "aliexpress",
 		"www.aliexpress.com": "aliexpress",
-		"ebay":          "ebay",
-		"www.ebay.com":  "ebay",
-		"taobao":        "taobao",
-		"tmall":         "tmall",
-		"jd":            "jd",
-		"jd.com":        "jd",
+		"ebay":             "ebay",
+		"www.ebay.com":     "ebay",
+		"temu":             "temu",
+		"www.temu.com":     "temu",
+		"shopify":          "shopify",
+		"taobao":           "taobao",
+		"tmall":            "tmall",
+		"jd":               "jd",
+		"jd.com":           "jd",
 	}
 
 	if v, ok := platforms[platform]; ok {
@@ -300,6 +303,20 @@ func (d *DataCleaner) ExtractProductID(url string, platform string) string {
 	case "ebay":
 		// eBay 产品 ID 提取
 		re := regexp.MustCompile(`/itm/(\d+)`)
+		matches := re.FindStringSubmatch(url)
+		if len(matches) > 1 {
+			return matches[1]
+		}
+	case "temu":
+		// Temu 产品 ID 提取
+		re := regexp.MustCompile(`/item/([\w-]+)\.html`)
+		matches := re.FindStringSubmatch(url)
+		if len(matches) > 1 {
+			return matches[1]
+		}
+	case "shopify":
+		// Shopify 产品 ID 从 URL 提取
+		re := regexp.MustCompile(`/products/([\w-]+)`)
 		matches := re.FindStringSubmatch(url)
 		if len(matches) > 1 {
 			return matches[1]

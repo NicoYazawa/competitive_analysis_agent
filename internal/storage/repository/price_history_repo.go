@@ -7,18 +7,17 @@ import (
 	"time"
 
 	"competitive-analysis-agent/internal/domain/entity"
-	"competitive-analysis-agent/internal/storage"
 
 	"github.com/google/uuid"
 )
 
 // PriceHistoryRepository 价格历史仓储
 type PriceHistoryRepository struct {
-	db *storage.PostgresDB
+	db Queryer
 }
 
 // NewPriceHistoryRepository 创建价格历史仓储
-func NewPriceHistoryRepository(db *storage.PostgresDB) *PriceHistoryRepository {
+func NewPriceHistoryRepository(db Queryer) *PriceHistoryRepository {
 	return &PriceHistoryRepository{db: db}
 }
 
@@ -237,7 +236,7 @@ func (r *PriceHistoryRepository) Count(ctx context.Context, competitorID uuid.UU
 }
 
 // DetectPriceChange 检测价格变化
-func (r *PriceHistoryRepository) DetectPriceChange(ctx context.Context, competitorID uuid.UUID, threshold float64) (*PriceChange, error) {
+func (r *PriceHistoryRepository) DetectPriceChange(ctx context.Context, competitorID uuid.UUID, threshold float64) (interface{}, error) {
 	// 获取最近两条记录
 	query := `
 		SELECT id, competitor_id, price, currency, recorded_at

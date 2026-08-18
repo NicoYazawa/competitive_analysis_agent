@@ -7,18 +7,17 @@ import (
 	"time"
 
 	"competitive-analysis-agent/internal/domain/entity"
-	"competitive-analysis-agent/internal/storage"
 
 	"github.com/google/uuid"
 )
 
 // CompetitorRepository 竞品仓储
 type CompetitorRepository struct {
-	db *storage.PostgresDB
+	db Queryer
 }
 
 // NewCompetitorRepository 创建竞品仓储
-func NewCompetitorRepository(db *storage.PostgresDB) *CompetitorRepository {
+func NewCompetitorRepository(db Queryer) *CompetitorRepository {
 	return &CompetitorRepository{db: db}
 }
 

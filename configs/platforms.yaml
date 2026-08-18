@@ -1,0 +1,72 @@
+# Platform scraper configuration
+# Each platform defines URL templates and CSS selectors for data extraction
+
+amazon:
+  search_url_template: "https://www.amazon.com/s?k={query}"
+  product_url_template: "https://www.amazon.com/dp/{asin}"
+  search_selectors:
+    product_card: "[data-component-type='s-search-result']"
+    title: "h2 a span"
+    price: ".a-price .a-offscreen"
+    rating: ".a-icon-alt"
+    reviews: "span a-size-small"
+    link: "h2 a"
+  product_selectors:
+    title: "#productTitle"
+    price: ".a-price .a-offscreen"
+    rating: "#acrPopover .a-icon-alt"
+    reviews: "#acrCustomerReviewText"
+    seller: "#sellerName"
+    bsr: "#SalesRank"
+
+aliexpress:
+  search_url_template: "https://www.aliexpress.com/wholesale?SearchText={query}"
+  product_url_template: "https://www.aliexpress.com/item/{product_id}.html"
+  search_selectors:
+    product_card: ".list-item"
+    title: ".item-title"
+    price: ".price"
+    orders: ".orders-count"
+  product_selectors:
+    title: "h1.product-title"
+    price: ".product-price-value"
+    orders: ".product-order-count"
+    store: ".store-name"
+
+ebay:
+  search_url_template: "https://www.ebay.com/sch/i.html?_nkw={query}"
+  product_url_template: "https://www.ebay.com/itm/{item_id}"
+  search_selectors:
+    product_card: ".s-item"
+    title: ".s-item__title"
+    price: ".s-item__price"
+    subtitle: ".s-item__subtitle"  # condition
+    link: ".s-item__link"
+  product_selectors:
+    title: "h1.x-item-title__mainTitle"
+    price: ".x-price-primary span"
+    condition: ".x-item-condition__label"
+    seller_rating: ".x-sellercard__ratings .x-star-rating"
+
+temu:
+  search_url_template: "https://www.temu.com/search?q={query}"
+  product_url_template: "https://www.temu.com/item/{product_id}.html"
+  search_selectors:
+    product_card: ".search-result-item,[class*='goods-item']"
+    title: ".goods-title"
+    price: ".goods-price"
+    link: "a"
+  product_selectors:
+    title: ".goods-title"
+    price: ".goods-price"
+    seller: ".seller-name"
+
+shopify:
+  # Stores can be configured here or discovered via Google search
+  # Each store should provide a /products.json endpoint
+  stores:
+    - "example-store.myshopify.com"
+  product_url_template: "https://{store}/products/{handle}"
+  search_selectors:
+    # Uses /products.json API — no HTML selectors needed
+    pass: true

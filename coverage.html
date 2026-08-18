@@ -1,0 +1,318 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>eino: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">competitive-analysis-agent/internal/eino/graph.go (81.8%)</option>
+				
+				<option value="file1">competitive-analysis-agent/internal/eino/nodes/analyzer.go (100.0%)</option>
+				
+				<option value="file2">competitive-analysis-agent/internal/eino/nodes/fetcher.go (100.0%)</option>
+				
+				<option value="file3">competitive-analysis-agent/internal/eino/nodes/synthesizer.go (100.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package eino
+
+import (
+        "context"
+
+        "competitive-analysis-agent/internal/eino/nodes"
+        "competitive-analysis-agent/internal/llm"
+)
+
+// Graph represents the Eino DAG for agent orchestration.
+type Graph struct {
+        fetcher    *nodes.FetcherNode
+        analyzer   *nodes.AnalyzerNode
+        synthesizer *nodes.SynthesizerNode
+}
+
+// NewGraph creates a new Eino Graph.
+func NewGraph(llmClient llm.ChatModel) *Graph <span class="cov8" title="1">{
+        return &amp;Graph{
+                fetcher:    nodes.NewFetcherNode(),
+                analyzer:   nodes.NewAnalyzerNode(llmClient),
+                synthesizer: nodes.NewSynthesizerNode(),
+        }
+}</span>
+
+// ExecuteResult holds the result of graph execution.
+type ExecuteResult struct {
+        Strategy        string   `json:"strategy"`
+        Recommendations []string `json:"recommendations"`
+        AnalysisResults []string `json:"analysis_results"`
+}
+
+// Execute runs the DAG: fetcher -&gt; analyzer -&gt; synthesizer.
+func (g *Graph) Execute(ctx context.Context, query string) (*ExecuteResult, error) <span class="cov8" title="1">{
+        // Step 1: Fetch data
+        fetcherOut, err := g.fetcher.Invoke(ctx, &amp;nodes.FetcherInput{
+                Query: query,
+                Type:  "market_data",
+        })
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        // Step 2: Analyze data
+        <span class="cov8" title="1">analyzerOut, err := g.analyzer.Invoke(ctx, &amp;nodes.AnalyzerInput{
+                Query:    query,
+                RawData:  fetcherOut.Data,
+        })
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, err
+        }</span>
+
+        // Step 3: Synthesize results
+        <span class="cov8" title="1">synthOut, err := g.synthesizer.Invoke(ctx, &amp;nodes.SynthesizerInput{
+                AnalysisResults: []string{analyzerOut.Analysis},
+                Query:           query,
+        })
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">return &amp;ExecuteResult{
+                Strategy:        synthOut.FinalStrategy,
+                Recommendations: synthOut.Recommendations,
+                AnalysisResults: []string{analyzerOut.Analysis},
+        }, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package nodes
+
+import (
+        "context"
+        "fmt"
+
+        "competitive-analysis-agent/internal/llm"
+)
+
+// AnalyzerInput represents input to the analyzer node.
+type AnalyzerInput struct {
+        Query    string `json:"query"`
+        RawData  string `json:"raw_data"`
+        AnalysisType string `json:"analysis_type"`
+}
+
+// AnalyzerOutput represents output from the analyzer node.
+type AnalyzerOutput struct {
+        Analysis string `json:"analysis"`
+        Insights []string `json:"insights"`
+}
+
+// AnalyzerNode analyzes data using LLM.
+type AnalyzerNode struct {
+        llmClient llm.ChatModel
+}
+
+// NewAnalyzerNode creates a new AnalyzerNode.
+func NewAnalyzerNode(llmClient llm.ChatModel) *AnalyzerNode <span class="cov8" title="1">{
+        return &amp;AnalyzerNode{llmClient: llmClient}
+}</span>
+
+// Invoke executes the analyzer node.
+func (n *AnalyzerNode) Invoke(ctx context.Context, input *AnalyzerInput) (*AnalyzerOutput, error) <span class="cov8" title="1">{
+        if n.llmClient == nil </span><span class="cov8" title="1">{
+                return &amp;AnalyzerOutput{
+                        Analysis: "Mock analysis: " + input.Query,
+                        Insights: []string{"Insight 1", "Insight 2"},
+                }, nil
+        }</span>
+
+        <span class="cov8" title="1">prompt := fmt.Sprintf("Analyze the following data for: %s\n\nData: %s", input.Query, input.RawData)
+
+        resp, err := n.llmClient.Chat(ctx, &amp;llm.ChatRequest{
+                Model: "qwen-max",
+                Messages: []llm.ChatMessage{
+                        {Role: "user", Content: prompt},
+                },
+        })
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, fmt.Errorf("analysis failed: %w", err)
+        }</span>
+
+        <span class="cov8" title="1">return &amp;AnalyzerOutput{
+                Analysis: resp.Content,
+                Insights: []string{"Auto-generated insight"},
+        }, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package nodes
+
+import (
+        "context"
+)
+
+// FetcherInput represents input to the fetcher node.
+type FetcherInput struct {
+        Query string `json:"query"`
+        Type  string `json:"type"`
+}
+
+// FetcherOutput represents output from the fetcher node.
+type FetcherOutput struct {
+        Data  string `json:"data"`
+        Found bool   `json:"found"`
+}
+
+// FetcherNode fetches data from various sources.
+type FetcherNode struct{}
+
+// NewFetcherNode creates a new FetcherNode.
+func NewFetcherNode() *FetcherNode <span class="cov8" title="1">{
+        return &amp;FetcherNode{}
+}</span>
+
+// Invoke executes the fetcher node.
+func (n *FetcherNode) Invoke(ctx context.Context, input *FetcherInput) (*FetcherOutput, error) <span class="cov8" title="1">{
+        // Simulate data fetching
+        return &amp;FetcherOutput{
+                Data:  "Fetched data for: " + input.Query,
+                Found: true,
+        }, nil
+}</span>
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package nodes
+
+import (
+        "context"
+        "fmt"
+)
+
+// SynthesizerInput represents input to the synthesizer node.
+type SynthesizerInput struct {
+        AnalysisResults []string `json:"analysis_results"`
+        Query           string   `json:"query"`
+}
+
+// SynthesizerOutput represents output from the synthesizer node.
+type SynthesizerOutput struct {
+        FinalStrategy string   `json:"final_strategy"`
+        Recommendations []string `json:"recommendations"`
+}
+
+// SynthesizerNode synthesizes multiple analysis results into a final strategy.
+type SynthesizerNode struct{}
+
+// NewSynthesizerNode creates a new SynthesizerNode.
+func NewSynthesizerNode() *SynthesizerNode <span class="cov8" title="1">{
+        return &amp;SynthesizerNode{}
+}</span>
+
+// Invoke executes the synthesizer node.
+func (n *SynthesizerNode) Invoke(ctx context.Context, input *SynthesizerInput) (*SynthesizerOutput, error) <span class="cov8" title="1">{
+        if len(input.AnalysisResults) == 0 </span><span class="cov8" title="1">{
+                return &amp;SynthesizerOutput{
+                        FinalStrategy:   "No analysis results to synthesize",
+                        Recommendations: []string{},
+                }, nil
+        }</span>
+
+        // Simple synthesis logic
+        <span class="cov8" title="1">synthesis := fmt.Sprintf("Based on %d analysis results for: %s", len(input.AnalysisResults), input.Query)
+
+        return &amp;SynthesizerOutput{
+                FinalStrategy:   synthesis,
+                Recommendations: []string{"Recommendation 1", "Recommendation 2", "Recommendation 3"},
+        }, nil</span>
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

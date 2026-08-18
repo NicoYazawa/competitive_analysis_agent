@@ -1,6 +1,6 @@
 database:
   host: "localhost"
-  port: 5432
+  port: 54320
   user: "postgres"
   password: "postgres"
   name: "competitive_analysis"
@@ -19,8 +19,8 @@ app:
 
 llm:
   provider: "qwen"
-  api_key: ""
-  base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+  api_key: "${LLM_API_KEY}"
+  base_url: "${LLM_BASE_URL}"
 
 asynq:
   redis_host: "localhost:6379"
